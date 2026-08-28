@@ -9,6 +9,153 @@ SELECT
     p.productnumber AS [Product Code],
     p.name AS [Product Name],
 
+    o.viz_salestypecode AS [Sale/Contracting Event Type],
+
+    o.viz_tcv AS [TCV],
+
+    o.viz_opportunityestimatedbookingscredit AS [Estimated Bookings Credit],
+
+    o.estimatedclosedate AS [Close Date],
+
+    o.owneridname AS [Opportunity Owner],
+
+    a.viz_geographiczone AS [Geographic Zone],
+
+    o.viz_productsincluded AS [Products Included],
+
+    a.viz_providersegmentcodename AS [Provider Segment],
+
+    o.viz_businessunitcodename AS [Business Unit],
+
+    o.viz_closedwondate AS [Closed Won Date],
+
+    a.msdyn_segmentidname AS [Segment Key],
+
+    o.viz_committedterminmonths AS [Contracting Terms (in Months)],
+
+    o.viz_gutfeel AS [Gut Feel],
+
+    o.viz_nextstep AS [Next Step],
+
+    o.viz_nextsteplastupdate AS [Next Step Last Update],
+
+    DATEDIFF(
+        DAY,
+        ISNULL(o.createdon, GETDATE()),
+        ISNULL(o.modifiedon, GETDATE())
+    ) AS [Stage Duration],
+
+    a.viz_dhcnetpatientrevenue AS [DHC Net Patient Revenue],
+
+    o.createdon AS [Created Date],
+
+    o.viz_leadsourcecodename AS [Lead Source],
+
+    o.viz_recordtypecodename AS [Opportunity Record Type],
+
+    o.viz_closedlostdate AS [Closed Lost Date],
+
+    o.viz_additionallostnotes AS [Closed Lost Description],
+
+    o.viz_gpoclosedlostreasoncodename AS [GPO Closed Lost Reason],
+
+    o.viz_lostreasoncompetitorname AS [Lost Reason Competitor Name],
+
+    o.viz_currentprimarygpocompetitor AS [GPO Lost To],
+
+    o.viz_additionallostnotes AS [Additional Lost Notes],
+
+    o.viz_lostreasonnotes AS [Lost Reason Notes],
+
+    o.viz_gpoclosedlostreasoncodename AS [Closed Lost Reason],
+
+    o.viz_lostreasonnotes AS [Reason Lost],
+
+    CASE
+        WHEN o.viz_gpoclosedlostreasoncodename IS NULL
+         AND o.viz_lostreasonnotes IS NULL
+        THEN NULL
+        ELSE CONCAT(
+            COALESCE(o.viz_gpoclosedlostreasoncodename,''),
+            ' - ',
+            COALESCE(o.viz_lostreasonnotes,'')
+        )
+    END AS [Reason Won/Lost],
+
+    o.modifiedon AS [Last Stage Change Date],
+
+    o.closeprobability AS [Probability (%)],
+
+    DATEDIFF(
+        DAY,
+        o.createdon,
+        GETDATE()
+    ) AS [Age],
+
+    op.createdon AS [Opportunity Product: Created Date],
+
+    o.viz_numberofcoveredaccounts AS [# Covered Accounts],
+
+    o.viz_agreementcountersigndate AS [Agreement Countersign Date],
+
+    o.viz_agreementsignaturedate AS [Agreement Signature Date],
+
+    o.modifiedbyname AS [Last Modified Alias],
+
+    o.viz_opportunityactualbookingscredit AS [Opportunity Actual Bookings Credit],
+
+    o.viz_opportunityactualbookingscredit AS [Actual Bookings Credit]
+
+FROM dbo.opportunity o
+
+LEFT JOIN dbo.account a
+    ON o.accountid = a.accountid
+
+LEFT JOIN dbo.opportunityproduct op
+    ON o.opportunityid = op.opportunityid
+
+LEFT JOIN dbo.product p
+    ON op.productid = p.productid
+
+WHERE
+    o.viz_stagecode IN (
+        100000001, -- Lead Identified
+        100000002, -- Qualify
+        100000003, -- Opportunity Scoping
+        100000004, -- SOW Request & Negotiations
+        100000005, -- Signature
+        100000006, -- Review & Close Out
+        100000007  -- Closed Won
+    )
+
+    AND (
+        o.viz_salestypecode IN (
+            100000006, -- Consumer Innovation Renewal
+            100000010, -- Life Sciences Renewal
+            100000013, -- MarketPulse Renewal
+            100000014, -- SaaS Renewal and Upsell
+            100000015, -- SaaS Renewal
+            100000016  -- Upsell
+        )
+        OR o.viz_salestypecode IS NULL
+    )
+
+    AND o.estimatedclosedate >= '2026-01-01'
+    AND o.estimatedclosedate <= '2028-12-31';
+
+
+////////////////////////////////////////////////
+SELECT
+    o.viz_memberid AS [Member ID],
+    o.opportunityid AS [18 Character ID],
+    a.name AS [Account Name],
+    o.name AS [Opportunity Name],
+
+    o.viz_stagecodename AS [Stage],
+
+    p.productnumber AS [Product Code],
+    p.name AS [Product Name],
+
     o.viz_opportunityfeetypecodename AS [Sale/Contracting Event Type],
 
     o.viz_tcv AS [TCV],
