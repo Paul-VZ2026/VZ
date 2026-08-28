@@ -4,3 +4,9 @@ SELECT
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'opportunityproduct'
 ORDER BY ORDINAL_POSITION;
+
+Msg 40000, Level 16, State 1, Line 1
+{"Message":"Invalid table name COLUMNS for schema INFORMATION_SCHEMA. Line:4, Position:6"}
+RequestId: TDS;6efea108-fb4c-4ec2-b4da-4f39c44bfc86;6
+Time: 2026-08-28T20:24:41.7761916Z
+
