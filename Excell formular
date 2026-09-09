@@ -1,1 +1,1 @@
-=FILTER(Sheet1!A:Z,ISNUMBER(MATCH(Sheet1!A:A,Sheet2!A:A,0)),"No matches")
+=FILTER('Dataverse Export'!A2:BM500,ISNUMBER(MATCH('Dataverse Export'!B2:B500,'Salesforce Export'!R:R,0)),"No matches")
