@@ -1,3 +1,15 @@
+=FILTER('Dataverse Export'!A2:BM500,COUNTIF('Salesforce Export'!R:R,'Dataverse Export'!L2:L500)>0,"No matches")
+
+
+
+
+
+
+
+
+
+
+
 SELECT
     -- Account
     a.accountnumber                               AS [Member ID],
