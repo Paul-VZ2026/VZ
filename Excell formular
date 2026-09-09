@@ -1,1 +1,4 @@
 =FILTER('Dataverse Export'!A2:BM500,ISNUMBER(MATCH('Dataverse Export'!B2:B500,'Salesforce Export'!R:R,0)),"No matches")
+
+
+=COUNTIF('Salesforce Export'!R:R,'Dataverse Export'!B2)
