@@ -1,4 +1,168 @@
-=FILTER('Dataverse Export'!A2:BM500,ISNUMBER(MATCH('Dataverse Export'!B2:B500,'Salesforce Export'!R:R,0)),"No matches")
+SELECT
+    -- Account
+    a.accountnumber                               AS [Member ID],
+    a.viz_vizientsfid                             AS [18 Character ID],
+    a.name                                        AS [Account Name],
+    a.viz_geographiczone                          AS [Geographic Zone],
+    a.viz_providersegmentcodename                 AS [Provider Segment],
+    a.msdyn_segmentid                             AS [Segment Key],
+    a.viz_dhcnetpatientrevenue                    AS [DHC Net Patient Revenue],
 
+    -- Opportunity
+    o.opportunityid                               AS [Id],
+    o.parentaccountid                             AS [AccountId],
+    o.name                                        AS [Opportunity Name],
+    o.name                                        AS [Name],
 
-=COUNTIF('Salesforce Export'!R:R,'Dataverse Export'!B2)
+    o.viz_legacykhsfopptyid                       AS [Vizient Opportunity ID],
+    o.viz_stagecodename                           AS [Stage],
+    o.viz_salestypecodename                       AS [Sale/Contracting Event Type],
+
+    o.viz_tcv                                     AS [TCV],
+    o.viz_tcv                                     AS [Amount],
+    o.viz_opportunityestimatedbookingscredit      AS [Estimated Bookings Credit],
+    o.viz_opportunityactualbookingscredit         AS [Actual Bookings Credit],
+
+    o.estimatedclosedate                          AS [Close Date],
+    o.viz_closedwondate                           AS [Closed Won Date],
+    o.viz_closedwondate                           AS [Closed Won Date Time],
+    o.viz_closedlostdate                          AS [Date Closed Lost],
+
+    owner.fullname                                AS [Opportunity Owner],
+    o.ownerid                                     AS [OwnerId],
+
+    o.viz_productsincluded                        AS [Products Included],
+
+    o.viz_businessunitcodename                    AS [Business Unit],
+    o.viz_businessunitscodename                   AS [Practice Area],
+
+    o.viz_termmonths                              AS [Contracting Terms (in Months)],
+    o.viz_gutfeel                                 AS [Gut Feel],
+
+    o.viz_nextstep                                AS [Next Step],
+    o.viz_nextsteplastupdate                      AS [Next Step Last Update],
+
+    o.createdon                                   AS [Created Date],
+
+    o.viz_leadsourcecodename                      AS [Lead Source],
+    o.viz_leadsourceifother                       AS [Lead Source If Other],
+
+    o.viz_recordtypecodename                      AS [Opportunity Record Type],
+
+    o.viz_gpoclosedlostreasoncodename             AS [GPO Closed Lost Reason],
+    o.viz_gpoclosedlostreasoncodename             AS [Reason Lost],
+
+    o.viz_currentprimarygpocompetitor             AS [GPO Lost To],
+
+    o.viz_lostreasoncompetitorname                AS [Competitors],
+    o.viz_competitivecodename                     AS [Competitive],
+    o.viz_lostreasoncompetitorname                AS [Lost Reason Competitor Name],
+
+    o.viz_lostreasonnotes                         AS [Reason Won/Lost],
+    o.viz_additionallostnotes                     AS [Additional Lost Notes],
+    o.viz_lostreasonnotes                         AS [Lost Reason Notes],
+
+    o.description                                 AS [Description],
+    o.viz_briefopportunitydescription             AS [Brief Description Holder],
+
+    o.closeprobability                            AS [Probability],
+    o.closeprobability                            AS [Probability (%)],
+    o.closeprobability                            AS [KH Probability],
+
+    o.opportunityratingcodename                   AS [ProbabilityGroup],
+
+    DATEDIFF(day, o.createdon, GETDATE())         AS [Age],
+
+    o.viz_numcoveredaccounts                      AS [# Covered Accounts],
+
+    o.viz_agreementcountersigndate                AS [Agreement Countersign Date],
+    o.viz_agreementsignaturedate                  AS [Agreement Signature Date],
+
+    modifieduser.fullname                         AS [Last Modified Alias],
+    o.modifiedby                                  AS [LastModifiedById],
+
+    -- Additional Salesforce Fields
+    o.contactidname                               AS [Billing Contact],
+    o.viz_isverbalname                            AS [Verbal],
+    o.viz_isparentopportunityname                 AS [IsParentOpportunity],
+    o.viz_rfprequestcodename                      AS [RFP Request],
+    o.viz_parentopportunityidname                 AS [Parent Opportunity],
+
+    -- Product
+    op.createdon                                  AS [Opportunity Product Created Date],
+    p.viz_productcode_txt                         AS [Product Code],
+    p.name                                        AS [Product Name],
+    o.viz_productgroupcodename                    AS [Product Group]
+
+FROM dbo.opportunity o
+
+LEFT JOIN dbo.account a
+    ON o.parentaccountid = a.accountid
+
+LEFT JOIN dbo.systemuser owner
+    ON o.ownerid = owner.systemuserid
+
+LEFT JOIN dbo.systemuser modifieduser
+    ON o.modifiedby = modifieduser.systemuserid
+
+LEFT JOIN dbo.opportunityproduct op
+    ON o.opportunityid = op.opportunityid
+
+LEFT JOIN dbo.product p
+    ON op.productid = p.productid
+
+WHERE
+    o.viz_stagecode IN (
+        100000001, -- Lead Identified
+        100000002, -- Qualify
+        100000003, -- Opportunity Scoping
+        100000004, -- SOW Request & Negotiations
+        100000005, -- Signature
+        100000006, -- Review & Close Out
+        100000007  -- Closed Won
+    )
+    AND (
+        o.viz_salestypecode IN (
+            100000006, -- Consumer Innovation Renewal
+            100000010, -- Life Sciences Renewal
+            100000013, -- MarketPulse Renewal
+            100000014, -- SaaS Renewal and Upsell
+            100000015, -- SaaS Renewal
+            100000016  -- Upsell
+        )
+        OR o.viz_salestypecode IS NULL
+    )
+    AND o.viz_legacykhsfopptyid IS NOT NULL
+    AND o.viz_legacykhsfopptyid IN (
+    '0061E00001DXCcvQAH',
+    '0061E00001J3NG0QAN',
+    '0061E00001Jvyj5QAB',
+    '0066R00000obx9fQAA',
+    '0066R00000p8vw2QAA',
+    '0066R00000p8vxaQAA',
+    '0066R00000p8w04QAA',
+    '0066R00000p8w0JQAQ',
+    '0066R00000p8w0KQAQ',
+    '0066R00000pdMowQAE',
+    '0066R00000ps6stQAA',
+    '0066R00000ps78IQAQ',
+    '0066R00000rJDGaQAO',
+    '0066R00000rKIUlQAO',
+    '0066R00000sL8NDQA0',
+    '0066R00000sMdR6QAK',
+    '0066R00000sMdVRQA0',
+    '0066R00000sMdWUQA0',
+    '0066R00000sNQaLQAW',
+    '0066R00000sNxT0QAK',
+    '0066R00000tj3kyQAA',
+    '0066R00000tj90zQAA',
+    '0066R00000tjglgQAA',
+    '0066R00000tk6DDQAY',
+    '0066R00000u2ytbQAA',
+    '0066R00000u2z7dQAA',
+    '0066R00000u2zD2QAI',
+    '0066R00000u4NbkQAE',
+    '0066R00000uIvQmQAK',
+    '0066R00000uIw7bQAC'
+    -- continue remaining IDs...
+)
