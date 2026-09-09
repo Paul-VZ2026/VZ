@@ -1,1 +1,1 @@
-
+=FILTER(Sheet1!A:Z,ISNUMBER(MATCH(Sheet1!A:A,Sheet2!A:A,0)),"No matches")
